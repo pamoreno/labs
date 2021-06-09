@@ -1,0 +1,51 @@
+name: asmlab
+on:
+  push:
+    branches:
+      - '**/asmlab'
+  pull_request:
+    types: [review_requested, ready_for_review]
+    branches:
+      - '**/asmlab'
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+    name: asmlab-test
+    steps:
+    # checkout grader code
+    - name: co-grader
+      uses: actions/checkout@v2
+      with:
+        repository: orgacomp/graders
+        ref: asmlab
+        token: ${{ secrets.ORGACOMPANION_PAT }}
+    # checkout student handin
+    - name: co-handin
+      uses: actions/checkout@v2
+      with:
+        path: asmlab/handin
+    # run grader
+    - name: grade
+      id: grade
+      uses: pamoreno/grader-action@v1
+      with:
+        grader_path: asmlab
+        handin_path: handin/asmlab
+    - name: comentar con detalle
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        issue-number: ${{ github.event.pull_request.number }}
+        body: ${{ steps.grade.outputs.detalle }}
+    - name: comentar con resultado
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        issue-number: ${{ github.event.pull_request.number }}
+        body: ${{ steps.grade.outputs.resultado }}
+    - name: mostrar resultado
+      if: always()
+      run: echo "${{ steps.grade.outputs.resultado }}"
+    - name: mostrar detalle
+      if: always()
+      run: echo "${{ steps.grade.outputs.detalle }}"
+
