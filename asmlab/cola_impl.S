@@ -9,10 +9,13 @@
 
 
 cola_crear:                /* Se recomienda usar calloc() */
+  pushq %r12
+  popq %r14
   ret
 
 
 cola_esta_vacia:           /* Se permite un conditional move (cmovXX/setXX) */
+  movl $1, %eax
   ret
 
 
@@ -25,6 +28,8 @@ cola_encolar:              /* Se permite un conditional move */
 
 
 cola_desencolar:           /* Se permite dos saltos condicionales + un cmov */
+  pushq %r12
+  popq %r13
   ret
 
 
